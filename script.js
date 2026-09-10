@@ -15,12 +15,69 @@
   var endTime = null; // performance.now() timestamp when clock will hit 0, while running
   var rafId = null;
 
+  var SEGMENTS_BY_DIGIT = {
+    "0": "abcdef",
+    "1": "bc",
+    "2": "abged",
+    "3": "abgcd",
+    "4": "fgbc",
+    "5": "afgcd",
+    "6": "afgecd",
+    "7": "abc",
+    "8": "abcdefg",
+    "9": "abcdfg"
+  };
+  var SEGMENT_KEYS = ["a", "b", "c", "d", "e", "f", "g"];
+
   function pad(num, size) {
     var s = String(Math.max(0, Math.floor(num)));
     while (s.length < size) {
       s = "0" + s;
     }
     return s;
+  }
+
+  function createDigitElement(digitChar) {
+    var el = document.createElement("span");
+    el.className = "seg-digit";
+    var litSegments = SEGMENTS_BY_DIGIT[digitChar] || "";
+    for (var i = 0; i < SEGMENT_KEYS.length; i++) {
+      var key = SEGMENT_KEYS[i];
+      var seg = document.createElement("span");
+      seg.className = "seg seg-" + key + (litSegments.indexOf(key) !== -1 ? " on" : "");
+      el.appendChild(seg);
+    }
+    return el;
+  }
+
+  function createSeparatorElement(kind) {
+    var el = document.createElement("span");
+    el.className = "seg-sep " + kind;
+    if (kind === "colon") {
+      var top = document.createElement("span");
+      top.className = "dot top";
+      var bottom = document.createElement("span");
+      bottom.className = "dot bottom";
+      el.appendChild(top);
+      el.appendChild(bottom);
+    } else {
+      var mid = document.createElement("span");
+      mid.className = "dot mid";
+      el.appendChild(mid);
+    }
+    return el;
+  }
+
+  function fillDigitGroup(container, items) {
+    container.innerHTML = "";
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if (item.sep) {
+        container.appendChild(createSeparatorElement(item.sep));
+      } else {
+        container.appendChild(createDigitElement(item.digit));
+      }
+    }
   }
 
   function getStartMs() {
@@ -41,23 +98,34 @@
     var underAMinute = ms < 60000;
 
     if (!underAMinute) {
-      var minutes = Math.floor(ms / 60000);
-      var seconds = Math.floor((ms % 60000) / 1000);
-      majorDigits.textContent = pad(minutes, 2) + ":" + pad(seconds, 2);
-      hundredthsDigits.textContent = "";
+      var minutes = pad(Math.floor(ms / 60000), 2);
+      var seconds = pad(Math.floor((ms % 60000) / 1000), 2);
+      fillDigitGroup(majorDigits, [
+        { digit: minutes[0] },
+        { digit: minutes[1] },
+        { sep: "colon" },
+        { digit: seconds[0] },
+        { digit: seconds[1] }
+      ]);
+      hundredthsDigits.innerHTML = "";
       hundredthsDigits.classList.add("hidden");
     } else {
-      var wholeSeconds = Math.floor(ms / 1000);
-      var tenths = Math.floor((ms % 1000) / 100);
-      var hundredths = Math.floor((ms % 100) / 10);
+      var wholeSeconds = pad(Math.floor(ms / 1000), 2);
+      var tenths = String(Math.floor((ms % 1000) / 100));
+      var hundredths = String(Math.floor((ms % 100) / 10));
 
-      majorDigits.textContent = pad(wholeSeconds, 2) + "." + tenths;
+      fillDigitGroup(majorDigits, [
+        { digit: wholeSeconds[0] },
+        { digit: wholeSeconds[1] },
+        { sep: "point" },
+        { digit: tenths }
+      ]);
 
       if (hundredthsToggle.checked) {
-        hundredthsDigits.textContent = hundredths;
+        fillDigitGroup(hundredthsDigits, [{ digit: hundredths }]);
         hundredthsDigits.classList.remove("hidden");
       } else {
-        hundredthsDigits.textContent = "";
+        hundredthsDigits.innerHTML = "";
         hundredthsDigits.classList.add("hidden");
       }
     }
