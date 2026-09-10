@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stadium Clock Simulator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="board">
+    <h1 class="title">Stadium Clock Simulator</h1>
+
+    <div class="clock" id="clock">
+      <span class="digit-group" id="majorDigits">00:00</span><span class="digit-group hundredths" id="hundredthsDigits">.00</span>
+    </div>
+
+    <div class="controls">
+      <button id="startStopBtn" type="button">Start</button>
+      <button id="resetBtn" type="button">Reset</button>
+
+      <label class="minutes-input">
+        Minutes:
+        <input type="number" id="minutesInput" min="0" max="99" value="2">
+      </label>
+
+      <label class="hundredths-toggle">
+        <input type="checkbox" id="hundredthsToggle" checked>
+        Show hundredths
+      </label>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
