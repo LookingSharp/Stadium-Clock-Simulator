@@ -87,8 +87,14 @@ body {
   gap: 0.4rem;
 }
 
-.minutes-input input {
+.start-time-input input {
   width: 3.5rem;
   font-size: 1rem;
   padding: 0.25rem;
+}
+
+.controls button:disabled {
+  background: #555;
+  color: #999;
+  cursor: not-allowed;
 }

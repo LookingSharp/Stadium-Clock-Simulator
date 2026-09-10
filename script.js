@@ -3,9 +3,11 @@
 
   var majorDigits = document.getElementById("majorDigits");
   var hundredthsDigits = document.getElementById("hundredthsDigits");
-  var startStopBtn = document.getElementById("startStopBtn");
+  var playBtn = document.getElementById("playBtn");
+  var stopBtn = document.getElementById("stopBtn");
   var resetBtn = document.getElementById("resetBtn");
-  var minutesInput = document.getElementById("minutesInput");
+  var startMinutesInput = document.getElementById("startMinutesInput");
+  var startSecondsInput = document.getElementById("startSecondsInput");
   var hundredthsToggle = document.getElementById("hundredthsToggle");
 
   var running = false;
@@ -19,6 +21,12 @@
       s = "0" + s;
     }
     return s;
+  }
+
+  function getStartMs() {
+    var minutes = Math.max(0, Number(startMinutesInput.value) || 0);
+    var seconds = Math.max(0, Math.min(59, Number(startSecondsInput.value) || 0));
+    return (minutes * 60 + seconds) * 1000;
   }
 
   function getRemainingMs() {
@@ -55,6 +63,11 @@
     }
   }
 
+  function updateButtons() {
+    playBtn.disabled = running;
+    stopBtn.disabled = !running;
+  }
+
   function tick() {
     if (!running) {
       return;
@@ -64,25 +77,25 @@
     if (ms <= 0) {
       running = false;
       remainingMs = 0;
-      startStopBtn.textContent = "Start";
+      updateButtons();
       return;
     }
     rafId = requestAnimationFrame(tick);
   }
 
-  function start() {
+  function play() {
     if (running) {
       return;
     }
     if (remainingMs <= 0) {
-      remainingMs = Math.max(0, Number(minutesInput.value) || 0) * 60000;
+      remainingMs = getStartMs();
     }
     if (remainingMs <= 0) {
       return;
     }
     endTime = performance.now() + remainingMs;
     running = true;
-    startStopBtn.textContent = "Stop";
+    updateButtons();
     rafId = requestAnimationFrame(tick);
   }
 
@@ -93,7 +106,7 @@
     remainingMs = getRemainingMs();
     running = false;
     endTime = null;
-    startStopBtn.textContent = "Start";
+    updateButtons();
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -102,28 +115,30 @@
 
   function reset() {
     stop();
-    remainingMs = Math.max(0, Number(minutesInput.value) || 0) * 60000;
+    remainingMs = getStartMs();
     render();
   }
 
-  startStopBtn.addEventListener("click", function () {
-    if (running) {
-      stop();
-    } else {
-      start();
+  playBtn.addEventListener("click", play);
+  stopBtn.addEventListener("click", stop);
+  resetBtn.addEventListener("click", reset);
+
+  startMinutesInput.addEventListener("change", function () {
+    if (!running) {
+      remainingMs = getStartMs();
+      render();
     }
   });
 
-  resetBtn.addEventListener("click", reset);
-
-  minutesInput.addEventListener("change", function () {
+  startSecondsInput.addEventListener("change", function () {
     if (!running) {
-      remainingMs = Math.max(0, Number(minutesInput.value) || 0) * 60000;
+      remainingMs = getStartMs();
       render();
     }
   });
 
   hundredthsToggle.addEventListener("change", render);
 
+  updateButtons();
   reset();
 })();
