@@ -37,9 +37,9 @@
     return s;
   }
 
-  function createDigitElement(digitChar) {
+  function createDigitElement(digitChar, invisible) {
     var el = document.createElement("span");
-    el.className = "seg-digit";
+    el.className = "seg-digit" + (invisible ? " invisible" : "");
     var litSegments = SEGMENTS_BY_DIGIT[digitChar] || "";
     for (var i = 0; i < SEGMENT_KEYS.length; i++) {
       var key = SEGMENT_KEYS[i];
@@ -75,7 +75,7 @@
       if (item.sep) {
         container.appendChild(createSeparatorElement(item.sep));
       } else {
-        container.appendChild(createDigitElement(item.digit));
+        container.appendChild(createDigitElement(item.digit, item.invisible));
       }
     }
   }
@@ -107,8 +107,7 @@
         { digit: seconds[0] },
         { digit: seconds[1] }
       ]);
-      hundredthsDigits.innerHTML = "";
-      hundredthsDigits.classList.add("hidden");
+      fillDigitGroup(hundredthsDigits, [{ digit: "0", invisible: true }]);
     } else {
       var wholeSeconds = pad(Math.floor(ms / 1000), 2);
       var tenths = String(Math.floor((ms % 1000) / 100));
@@ -118,16 +117,13 @@
         { digit: wholeSeconds[0] },
         { digit: wholeSeconds[1] },
         { sep: "point" },
-        { digit: tenths }
+        { digit: tenths },
+        { digit: "0", invisible: true }
       ]);
 
-      if (hundredthsToggle.checked) {
-        fillDigitGroup(hundredthsDigits, [{ digit: hundredths }]);
-        hundredthsDigits.classList.remove("hidden");
-      } else {
-        hundredthsDigits.innerHTML = "";
-        hundredthsDigits.classList.add("hidden");
-      }
+      fillDigitGroup(hundredthsDigits, [
+        { digit: hundredths, invisible: !hundredthsToggle.checked }
+      ]);
     }
   }
 
