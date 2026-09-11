@@ -117,12 +117,16 @@
         { digit: wholeSeconds[0] },
         { digit: wholeSeconds[1] },
         { sep: "point" },
-        { digit: tenths },
-        { digit: "0", invisible: true }
+        { digit: tenths }
       ]);
 
+      // The width-matching placeholder trails the real hundredths digit
+      // (instead of sitting between tenths and hundredths) so the two
+      // digits are adjacent with no visible gap, while the total digit
+      // slot count still matches the minutes:seconds layout.
       fillDigitGroup(hundredthsDigits, [
-        { digit: hundredths, invisible: !hundredthsToggle.checked }
+        { digit: hundredths, invisible: !hundredthsToggle.checked },
+        { digit: "0", invisible: true }
       ]);
     }
   }
